@@ -21,14 +21,18 @@
         </header>
 
         <main role="main">
-            <h1>Co-currying in sequent calculus</h1>
+            <h1>Semantics of triples</h1>
             <article>
     <section class="header">
-        Posted on June 24, 2020
+        Posted on October  4, 2022
         
     </section>
     <section>
-        <p>If anyone is interested in what currying and co-currying look like in sequent calculus: <a href="https://gist.github.com/clayrat/f5a49ee9976eb361868523ed3fed2ff5">System L with subtractions</a>.</p>
+        <p>Semantics of <code>{P}c{Q}</code>:</p>
+<ul>
+<li>Hoare logic: <code>P s, s–(c)→s' =&gt; Q s'</code></li>
+<li>Separation logic: <code>P s, safe c s ∧ s–(c)→s' ⇒ Q s'</code></li>
+</ul>
     </section>
 </article>
 

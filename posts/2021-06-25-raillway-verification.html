@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Covalue</title>
+        <link rel="stylesheet" href="../css/default.css" />
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../">Covalue</a>
+            </div>
+            <nav>
+                <a href="../">Home</a>
+                <a href="../about.html">About</a>
+                <a href="../contact.html">Contact</a>
+                <a href="../archive.html">Archive</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>Railway verification overview</h1>
+            <article>
+    <section class="header">
+        Posted on June 25, 2021
+        
+    </section>
+    <section>
+        <p><img alt="EU year of rail" width="600px" src="../images/eu-year-rail.jpg" /></p>
+<p>The EU has declared 2021 to be <a href="https://europa.eu/year-of-rail/">the year of rail</a>. With the help of colorful posters, the Eurocrats emphasize the environmental friendliness of trains and the strengthening of the friendship between nations (aka “cross-border cooperation”), but somewhere in the third or fourth place, the word “safety” also appears. The most stringent guarantees of safety are provided by mathematics, which is tantamount to the use of formal methods in engineering, especially formal verification. Are such things used for railway purposes, and if so, how? Let’s look into it.</p>
+<p>What can and should be verified for trains? Modern railroads are called <a href="https://en.wikipedia.org/wiki/Cyber-physical_system">cyber-physical systems</a>. This is a relatively new term that came into use in the noughties. It is intended to designate a system that has both classical mechanical components, described by “continuous” mathematics and physics, and a “discrete” software component. Autonomous cars are usually cited as an example, but simpler devices, like a conveyor belt at the store checkout, also fit the description. Verification in such of systems is primarily performed on the “discrete” part, i.e. the software, and separately on models of physical components, but there are also hybrid approaches, which we will also get to.</p>
+<p>A key topic in railway safety is <a href="https://en.wikipedia.org/wiki/Signalling_control">railway signalling control systems</a>. They are divided into:</p>
+<ul>
+<li><a href="https://en.wikipedia.org/wiki/Interlocking">Interlocking</a>, i.e. semaphore and switch control systems whose purpose is to exclude conflicting routes. They are usually located around stations.</li>
+<li><a href="https://en.wikipedia.org/wiki/Automatic_train_protection">Automatic train protection</a> and <a href="https://en.wikipedia.org/wiki/Automatic_train_control">control</a> systems, which mainly monitor the speed and distance between trains. They operate along the entire line.</li>
+<li>High-level systems for <a href="https://en.wikipedia.org/wiki/Automatic_train_operation">automatic train operation</a> and automatic train control, which take over some or all of the driver’s and dispatcher’s functions.</li>
+</ul>
+<p>An important area of work is the mutual integration of these systems. For example, the largest pan-European railway project is <a href="https://en.wikipedia.org/wiki/European_Rail_Traffic_Management_System">ERTMS</a>, which has been gradually introduced in the EU since the late 1990s. It includes the <a href="https://en.wikipedia.org/wiki/European_Train_Control_System">ETCS</a> signalling subsystem, which aims to standardize the operation of national ATPs and complete the transition to radio protocols. A similar standard for subways and electric trains is <a href="https://en.wikipedia.org/wiki/Communications-based_train_control">CBTC</a>, which has been implemented by Europeans around the world since the mid-80s. This brings us to the topic of standards.</p>
+<p>In any formal verification project, specification is extremely important - after all, correctness is not proved “in general” (which is impossible), but precisely with respect to a well-defined specification, usually encoded by formulas or “statements” of some logic (in the case of correct-by-construction programming, their role is played by types of some sufficiently powerful system). Where dow specifications for railways come from?</p>
+<p>There are two generally accepted families of railroad standards in the Western world:</p>
+<ul>
+<li>The European Union <a href="https://www.cenelec.eu/">CENELEC</a>, from the French “Comité Européen de Normalization ÉLECtrotechnique” - in fact, as the name suggests, it is a whole committee that publishes hundreds and thousands of regulations for all kinds of electrical equipment; in the context of railway verification we are interested in <a href="https://standards.globalspec.com/std/14317747/EN%2050128">EN50128</a> and <a href="https://standards.globalspec.com/std/10256902/EN%2050657">EN50657</a>, where EN stands for European Norm.</li>
+<li>The North American “set of recommendations” from <a href="https://www.arema.org/">AREMA</a> (from the “American Railway Engineering and Maintenance-of-way Association”), plus the military standard for system software, MIL-STD-882.</li>
+</ul>
+<p>Standards 50128 and 50657 directly govern the development and use of software for signaling systems and rolling stock, respectively, and are part of a broader family of railway standards, such as 50126 (general safety standard), 50129/50159 (signaling systems), 50155 (rolling stock), and so on. They cover all levels of software that can affect transportation safety, from firmware and operating system kernels to user interfaces.</p>
+<p>50128 exists in 2 versions: 2001 and 2011, which are one-way compatible (i.e., 2011 is more stringent). It introduces the concept of Safety Integrity Levels or <a href="http://www.railway-research.org/IMG/pdf/043.pdf">SILs</a>, which are numbered from 0 to 4 levels of required program reliability. The use of formal methods is “recommended” for levels 1-2, and “strongly recommended” for levels 3-4. Development is prescribed to follow a V-shaped model:</p>
+<p><img alt="V-shaped formal methods diagram" width="600px" src="../images/reichl.jpg" /></p>
+<p>For formal methods, the standard recommends the following: use them only for critical components, building high-level hierarchical models, discretizing variables as much as possible, and emphasizing automatic proofs. Examples of FMs include:</p>
+<ul>
+<li><a href="https://en.wikipedia.org/wiki/Communicating_sequential_processes">CSP</a> and <a href="https://en.wikipedia.org/wiki/Calculus_of_communicating_systems">CCS</a> process algebras</li>
+<li><a href="https://en.wikipedia.org/wiki/HOL_(proof_assistant)">HOL</a> interactive proof-assistant</li>
+<li>Specification languages: <a href="https://en.wikipedia.org/wiki/Language_Of_Temporal_Ordering_Specification">LOTOS</a>, <a href="https://en.wikipedia.org/wiki/OBJ_(programming_language)">OBJ</a>, <a href="https://en.wikipedia.org/wiki/Temporal_logic">temporal logic</a>, <a href="https://en.wikipedia.org/wiki/Vienna_Development_Method">VDM</a>, <a href="https://en.wikipedia.org/wiki/Z_notation">Z-notation</a></li>
+<li><a href="https://en.wikipedia.org/wiki/B-Method">B-method</a></li>
+</ul>
+<p>It was mentioned earlier that the focus for railway verification is on automated methods, which is in line with FM trends such as <a href="https://en.wikipedia.org/wiki/Model_checking">model checking</a> and <a href="https://en.wikipedia.org/wiki/Abstract_interpretation">abstract interpetation</a>. Let’s look at a fairly recent survey article by Beek et al, [2019] <a href="https://openportal.isti.cnr.it/data/2019/411164/2019_411164.postprint.pdf">“Adopting Formal Methods in an Industrial Setting: The Railways Case”</a> to see where and how they are being applied.</p>
+<p>It is noticeable that most of the efforts are devoted to the verification of interlocking systems - this is due to the specificity of the topic. As you can already see from the titles of articles such as Fantechi, Haxthausen, [2018] <a href="https://core.ac.uk/download/pdf/301576251.pdf">“Safety Interlocking as a Distributed Mutual Exclusion Problem”</a>, the problem of resolving conflicting routes is reduced to already existing ways of verifying multithreaded/distributed systems. That is, rails and trains are thought of as the physical equivalent of execution threads, where analogues of thread interference and race conditions lead to very solemn and <a href="https://en.wikipedia.org/wiki/Crash_at_Crush">spectacular</a> consequences.</p>
+<p>The most popular tool, or rather a family of tools, is the aforementioned <a href="https://en.wikipedia.org/wiki/B-Method">B-method</a> - a set of specification languages and model-checkers whose development began in the 1980s in England and France. It is possible to extract code from models (mostly, it seems, in Ada) - this process is called refinement. The B-method has been widely used by the French in projects such as <a href="https://en.wikipedia.org/wiki/Paris_M%C3%A9tro_Line_14">unmanned 14th line of the Paris metro</a> and automated shuttles at Charles de Gaulle airport. Following these projects, a consensus was reached on the robustness of B-models, so they are now used as a low-level formalism into which other models - such as <a href="https://en.wikipedia.org/wiki/Petri_net">Petri nets</a> in Sun, [2016] <a href="https://tel.archives-ouvertes.fr/tel-01293395">“Model based system engineering for safety of railway critical systems”</a> - are translated. Other model checking tools are also used, notably NuSMV and <a href="https://github.com/jankofron/abz18-casestudy-spin">Promela/SPIN</a>.</p>
+<p>In contrast to model-checking, which is often used for working with specifications, abstract interpretation is used for static code analysis. For safety-critical systems, such code is often C, derived from a higher-level program in a dataflow language such as <a href="https://en.wikipedia.org/wiki/Lustre_(programming_language)">Lustre</a>, which in turn is extracted from Simulink-like diagrams. An example of the simultaneous use of all these tools together with model-checking can be seen in Ferrari et al, [2013] <a href="https://www.sciencedirect.com/science/article/pii/S0167642312000676">“The Metrô Rio case study”</a>. It is also discussed by Xavier Leroy in his 2016 prize lecture <a href="https://royalsociety.org/science-events-and-lectures/2016/11/milner-award-lecture/">“In search of software perfection”</a>.</p>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+    </body>
+</html>

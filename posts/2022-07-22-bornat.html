@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Covalue</title>
+        <link rel="stylesheet" href="../css/default.css" />
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../">Covalue</a>
+            </div>
+            <nav>
+                <a href="../">Home</a>
+                <a href="../about.html">About</a>
+                <a href="../contact.html">Contact</a>
+                <a href="../archive.html">Archive</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>Separation logic and concurrency</h1>
+            <article>
+    <section class="header">
+        Posted on July 22, 2022
+        
+    </section>
+    <section>
+        <p>Bornat, [2009] <a href="https://www.eis.mdx.ac.uk/staffpages/r_bornat/papers/BCSFACSpaper.pdf">“Separation logic and concurrency”</a></p>
+<p>Programming is a combination of mechanical computation and formal logic. As a rule, programmers use every new formalism to increase the scope of expressible programs rather than to increase correctness (for the balance between expressiveness and consistency see also e.g. <a href="https://twitter.com/aspiwack/status/1394012829464866819">this tweet</a>). Multithreaded computing is the most difficult kind of programming, and here, as always, computer science theory both follows and overtakes practice.</p>
+<p>The fundamental problem of concurrency is that the synchronization of processes that exchange information is itself an exchange of information, i.e. we are somehow trapped inside this game. Dijkstra proposed to use synchronization primitives to structure concurrent programs, and the correctness problem was split into problems of fidelity of what happens during successful synchronization (usually formulated as safety) and fidelity of the synchronization itself (often expressed in terms of liveness properties).</p>
+<p>Concurrent separation logic (CSL) is classically concerned with safety, i.e. the partial correctness of a multithreaded program with respect to its specification and consistency model. Its predecessor is primarily the Owicki-Gries method of the 1970s - an extension of <a href="https://en.wikipedia.org/wiki/Hoare_logic">Hoare’s axiomatic logic</a> to programs with parallel composition and synchronization primitives based on non-interference proofs. The OG method popularized the ideas of resource invariants and auxiliary (ghost) variables. In the 1980’s Cliff Jones refined the OG method to rely-guarantee by adding two conditions of the same name to the pre- and postconditions. One of the weaknesses of both methods is working with aliasing, i.e. the fact that a memory cell can be indexed by different character expressions. To solve this problem, separation logic was invented - a parallel branch of Hoare logic development, where “separation” is a binary predicate over cells that guarantees the inequality of their addresses. This allows to have a so-called frame rule (the terminology, by the way, is <a href="https://en.wikipedia.org/wiki/Frame_(artificial_intelligence)">borrowed from AI</a>), which allows to discard “irrelevant” logical conditions, i.e. to work only with the state that is directly affected by the part of the program in question.</p>
+<p>Like the OG method, CSL adds parallel composition primitives and <a href="https://en.wikipedia.org/wiki/Critical_section">critical sections</a> of the form <code>with r when B do C</code> (for which a lower-level implementation is implied). The <code>r</code> is a so-called resource, for each of which a different invariant is introduced into the logic (also an OG idea). The paper shows an example proof for programs with <a href="https://en.wikipedia.org/wiki/Semaphore_(programming)">semaphores</a>, then moves on to the permissions mechanism needed to keep track of read-only auxiliary variables (there are alternatives to this mechanism - subjective auxiliary state in <a href="https://software.imdea.org/fcsl/">FCSL</a> and ghost objects/higher-order ghost code in <a href="https://iris-project.org/">Iris</a>). Next, a proof of a <a href="https://en.wikipedia.org/wiki/Readers%E2%80%93writer_lock">readers-writer lock</a> (prohibiting a race between reads and writes) on semaphores is demonstrated, using the ghost ticket trick.</p>
+<p>The last section is devoted to a proof of a non-blocking 4-slot algorithm by Hugo Simpson - the algorithm implements a wait-free single-reader single-writer atomic register. The proof is done “a la modelchecking”, with explicit enumeration of states in the invariant. It would be nice to have an algorithmic resource theory that we could use in compilers, the article says, and ends with optimism about the coming incorporation of rely-guarantee and temporal logic ideas into CSL.</p>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+    </body>
+</html>

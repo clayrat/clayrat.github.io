@@ -21,14 +21,23 @@
         </header>
 
         <main role="main">
-            <h1>Co-currying in sequent calculus</h1>
+            <h1>Finite list take lemma</h1>
             <article>
     <section class="header">
-        Posted on June 24, 2020
+        Posted on September  8, 2022
         
     </section>
     <section>
-        <p>If anyone is interested in what currying and co-currying look like in sequent calculus: <a href="https://gist.github.com/clayrat/f5a49ee9976eb361868523ed3fed2ff5">System L with subtractions</a>.</p>
+        <p>A well-known (in narrow circles) <a href="https://www.cs.nott.ac.uk/~pszgmh/approx.pdf">take lemma</a> for finite lists via the <a href="https://github.com/math-comp/math-comp/pull/909">generalized <code>take_take</code></a>:</p>
+<pre><code>Lemma take_take_min {T} i j (s : seq T) : take i (take j s) = take (minn i j) s.
+Proof. by elim: s i j =&gt; //= a l IH [|i] [|j] //=; rewrite minnSS IH. Qed.
+
+Lemma take_lemma {T} (p r : seq T) : (forall i, take i p = take i r) &lt;-&gt; p = r.
+Proof.
+split; last by move=&gt;-&gt;.
+move=&gt;H; move: (H (size p)) (H (size r)); rewrite !take_size=&gt;{H} Hp Hr.
+by rewrite Hp -Hr {2 3}Hp !take_take_min minnAC minnn minnC.
+Qed.</code></pre>
     </section>
 </article>
 
