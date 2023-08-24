@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Covalue</title>
+        <link rel="stylesheet" href="../css/default.css" />
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../">Covalue</a>
+            </div>
+            <nav>
+                <a href="../">Home</a>
+                <a href="../about.html">About</a>
+                <a href="../contact.html">Contact</a>
+                <a href="../archive.html">Archive</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>Subtyping Without Reduction</h1>
+            <article>
+    <section class="header">
+        Posted on August 25, 2023
+        
+    </section>
+    <section>
+        <p><a href="https://www.cs.nott.ac.uk/~pszgmh/subtyping.pdf">Hewer, Hutton, [2022] “Subtyping Without Reduction”</a></p>
+<p><a href="https://github.com/brandonhewer/Subtyping">Cubical Agda formalization</a></p>
+<p>The paper presents two quotiented encodings of subtypes - 1) a sigma with a propositionally truncated inductive family and 2) an inductive-recursive family with an injectivity constraint on the simultaneously defined function; both are formalized in Cubical Agda. The motivation for this is that operations on subtypes tend to overcompute the embedded predicate, which can greatly slow down typechecking. The first half of the paper takes the subtype of even numbers and addition as the operation on it as the running example.</p>
+<p>The crux of the first idea is to encode the predicate that defines the subtype membership as an inductive type, adding the expensive operations closed under the predicate (e.g., the addition mentioned above) as “non-canonical” constructors. Doing this throws the family out of the propositional class (since proofs of the same fact can now be obtained via different terms, e.g., by adding zeroes). This problem can be fixed by doing the so-called prop-truncation, i.e., by postulating equality of all proofs of the same type with a higher constructor. For convenience, one can construct an isomorphism between a “canonical” evenness predicate and a quotiented one. Eliminating from such a predicate back to nats can be done by introducing an intermediate sigma-prop or recursion on numerical indices.</p>
+<p>The second idea is to use a higher inductive-recursive definition for the whole subtype. That is, we build structurally even numbers with embedded addition at once while defining the function toN for projecting into nats and adding a higher constructor for injectivity of toN. The construction of an isomorphism with the previous definition is outlined here verbally, but there is no available code. I had to reconstruct it based on further sections (on top of the <a href="https://github.com/cmcmA20/cubical-mini">cubical-mini</a> library): <a href="https://gist.github.com/clayrat/7e7e33d72fa2cf19dfe855c90981a41f">see the gist</a>.</p>
+<p>Both techniques boil down to building DSLs for operations on subtypes - blocking reductions by encoding functions with data and speeding up typechecking. Next, the authors decide to switch to an example with finite ordered sets <code>Fin</code>, encode them as a sigma of nat and inductive inequality (with constructors <code>0 &lt; S _</code> and <code>x &lt; y -&gt; S x &lt; S y</code>), immediately forget about the initial motivation and continue to work only with the inequality type itself - they bake in constructors for transitivity and difference-by-one (plus prop-truncation) into it, emphasize that the proofs over the extended version preserve the new constructors, not “normalize” them to two canonical ones. They also promise to show the higher-inductive-recursive variant in code - but it’s not there either.</p>
+<p>Next, the paper proceeds to formalize a generalization of the first idea with quotiented free monads (IF) over indexed containers and their morphisms - this is called a “propositional monad,” and its free version is constructed. As another example, the authors show how to build a subtype of lists where elements are related pairwise by a given propositional relation on top of this construction. Next, they formalize a generalization of the second idea with higher-induction-recursion (IR), calling it a “free extension of the subtype”, using fibers over indexed containers, and describe in detail the construction of an isomorphism between this encoding and IF, transporting the list example.</p>
+<p>The authors sketch how to generalize the approach to sigmas, where the second component is an arbitrary indexed type (not just a proposition), taking vectors as an example and baking in concatenation as a constructor. Propositional free monads are no longer sufficient to handle this; “freely represented families” over containers are needed.</p>
+<p>The paper mentions <code>SProp</code>, erasure annotations, and abstract definitions as related approaches. The problem with the first two is insufficient composability; with the latter, there is the need for additional proofs. Specifying arbitrary equalities between operations, deriving a combinatorial language for subtypes, and finding more convenient eliminators are named as directions for future work.</p>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+    </body>
+</html>
