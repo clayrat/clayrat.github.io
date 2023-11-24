@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Covalue</title>
+        <link rel="stylesheet" href="../css/default.css" />
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../">Covalue</a>
+            </div>
+            <nav>
+                <a href="../">Home</a>
+                <a href="../about.html">About</a>
+                <a href="../contact.html">Contact</a>
+                <a href="../talks.html">Talks</a>
+                <a href="../archive.html">Archive</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>Programming and Proving with Guarded Recursion @ PSSV'23</h1>
+            <article>
+    <section class="header">
+        Posted on November 24, 2023
+        
+    </section>
+    <section>
+        <p>On November 3, I gave a talk named “Programming and Proving with Guarded Recursion” at <a href="https://persons.iis.nsk.su/en/PSSVfrom2022towards2023">the PSSV’23 workshop</a> on a topic I’ve been working intensively on for the last couple of months - <a href="https://ncatlab.org/nlab/show/guarded+recursion">guarded recursion</a>. I’ll make a short synopsis here; more details are found in <a href="http://clayrat.github.io/talks/2023-PSSV-guarded-recursion.pdf">the slides</a> and the <a href="https://github.com/clayrat/guarded-cm/">GitHub repo</a>.</p>
+<p>Briefly, the idea of guarded recursion can be characterized as the calculus of thunks; it goes back to modal <a href="https://en.wikipedia.org/wiki/Provability_logic">logics of provability</a> (Gödel-Löb system and similar ones). In the guarded type system, the deferred computation returning A is denoted as <code>▷A</code>. This type constructor is equipped with the structure of an applicative functor, i.e., as basic operations, we can defer the computation for one step (<code>next : A → ▷A</code>) and apply a function to an argument at the next step (<code>ap : ▷(A → B) → ▷A → ▷B</code>). The main working construction, however, is the (unique) guarded fixed point operator <code>fix : (▷A → A) → A</code>. From a programmer’s point of view, it behaves like a recursion that returns control to the caller after each iteration, which allows total algorithms to be written in a productive form, i.e., as potentially infinite series of terminating computations that can be interrupted after each step. Potentially infinite computations are ubiquitous in practice - they are all sorts of server-side programs and streaming data transformations.</p>
+<p>Classical structures that can be defined using guarded recursion are:</p>
+<ul>
+<li>infinite streams</li>
+<li>co-lists (i.e., sequences that can be both finite and infinite)</li>
+<li>extended Peano numbers (where we have a term denoting ∞)</li>
+<li>the so-called partiality monad (i.e., some value whose acquisition is delayed for an indefinite number of steps, from 0 to ∞)</li>
+</ul>
+<p>Applications of deferred recursion can be conceptually divided into two classes: working with infinite structures directly and encoding non-strictly positive recursive types. As a representative of the first class, we can refer to the definition and verification of <a href="https://github.com/clayrat/guarded-cm/blob/main/src/Guarded/ReplaceMin.agda">Bird’s replaceMin algorithm</a> and its further generalizations to MonadFix / value recursion. Non-strictly positive definitions can be demonstrated by the example of <a href="https://github.com/clayrat/guarded-cm/blob/main/src/Guarded/Hofmann.agda">Hofmann’s algorithm for breadth-first tree traversal</a>; in general, such constructions (+ the partiality monad mentioned above) often come up when working with models of PLs by the method of logical relations and constructing denotational semantics. These ideas are the basis of a young branch of PLT called <a href="https://www.jonmsterling.com/jms-005S.xml">(synthetic) guarded domain theory</a>, where any type is simultaneously a domain - this allows the work to be simplified considerably, eliminating numerous proofs of “domainness”.</p>
+<p>It is worth noting that using the guarded modality alone severely restricts the possibility of manipulating thunks. On the one hand, such a ubiquitous type-based control is convenient. Classical approaches to dealing with infinite structures in proof-assistants, such as coinductive mechanisms, suffer from a lack of compositionality - since productivity checking used in them works syntactically, this regularly leads to a situation where the proof-engineer receives an error about a violation of totality only after the completion of a time-consuming proof, which, of course, is quite demoralizing. On the other hand, the coinductive reasoning cannot be entirely reproduced using guards - intuitively, when working with a deferred computation, we can only maintain or increase the degree of its “deferral”; in other words, thunks can never be “collapsed” at the design stage. This limitation can be circumvented by extending the system with special <a href="https://bentnib.org/productive.pdf">clock variables</a>, quantification by them (a particular case of this idea is the so-called “constant” modality), and the <code>force</code> primitive, which allows us to dynamically run chunks of deferred computation in contexts safe for this purpose.</p>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+    </body>
+</html>
