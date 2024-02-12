@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Covalue</title>
+        <link rel="stylesheet" href="../css/default.css" />
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../">Covalue</a>
+            </div>
+            <nav>
+                <a href="../">Home</a>
+                <a href="../about.html">About</a>
+                <a href="../contact.html">Contact</a>
+                <a href="../talks.html">Talks</a>
+                <a href="../archive.html">Archive</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>Quotient Haskell</h1>
+            <article>
+    <section class="header">
+        Posted on February 10, 2024
+        
+    </section>
+    <section>
+        <p><a href="https://www.cs.nott.ac.uk/~pszgmh/quotient-haskell.pdf">Hewer, Hutton, [2024] “Quotient Haskell: lightweight quotient types for all”</a></p>
+<p>My port of sections 2+3 to Cubical Agda: <a href="https://gist.github.com/clayrat/818acc30a02338bad29690ef499955ec">source</a>.</p>
+<p>Subtypes have a dual, rarely used but useful construction, quotient types. For a subtype, we prove the satisfaction of a predicate when constructing it, and for a quotient type we prove it on elimination. A classic example of a programmer’s quotient construction are multisets (bags), i.e., lists quotiented by permutation of elements. When working with such a construction, you have to prove for each function that takes a bag as an argument that its result does not depend on permutations of the underlying list. These proof obligations can be automated by restricting the logic to SMT-decidable. This is how we get a refinement type system, e.g. automation for subtypes is widely used in LiquidHaskell. However, automation for quotient types is less explored, which is the gap the paper fills by introducing an LH extension - <a href="https://github.com/brandonhewer/QuotientHaskell/tree/develop">QuotientHaskell</a>. The basic idea is to translate the equational laws required by functions on quotient types into refinement logic predicates. The class of supported quotient types is called quotient inductive types (QIT), where inductive type constructors are defined simultaneously with equations on the data. The first part of the paper focuses on three motivating examples.</p>
+<p>The first example is “mobiles”, binary trees with data in nodes, quotiented by branch mirroring (<code>Node l a r == Node r a l</code>). To create a quotient type, we need to add a “higher” constructor of the desired equality (in homotopy terminology, a “path”). Within the QH logic, these constructors become ordinary equalities, the key point being that the term on the left-hand side of the equation must be in a canonical (constructor) form. Quotiented definitions technically create a new type, rather than being a refinement of an old one.</p>
+<p>Any tree can be treated as a mobile, but the number of functions valid for the latter is smaller - we cannot use functions that produce different results when traversing branches left-to-right and right-to-left, but we can, for example, sum all numbers in the tree (because addition is commutative) or use <code>map</code> on the values (because it does not take positional information into account). Tree folding also cannot be used as is, but it is possible to add a branch non-differentiation precondition to the function argument, and to do this you need to use auxiliary manual machinery to help the SMT-solver.</p>
+<p>The next example is the “Boom hierarchy”: trees with (optional) data in leaves -&gt; lists -&gt; (finite) multisets -&gt; sets.</p>
+<ul>
+<li>To obtain a list from a tree, we have to quotient it by monoid laws (where “addition” is a node constructor). The concatenation of such a quotiented list has constant complexity, since we just add a new node without recomputing the normal form of the list - this can be useful when we have many such operations and the linear representation of the list is rarely used. Tree operations that preserve the monoid structure - <code>sum</code>, <code>map</code>, <code>filter</code> - work on quotiented lists.</li>
+<li>Multisets are obtained by repeated quotienting by the “addition” commutativity, similar to mobiles. This forbids the use of order-dependent functions such as <code>toList</code>.</li>
+<li>Sets are obtained by a final quotienting by idempotency, which forbids distinguishing between different occurrences of the same element. We can still use functions like <code>contains</code>, but we are no longer allowed to count the number of occurrences, for example.</li>
+</ul>
+<p>The last classical example of a quotient construction are rational numbers obtained by quotienting pairs of integers by the equality of the diagonal products of numerator and denominator. This approach avoids hiding the internal structure of the type in order to preserve the invariant. The definition also uses a refinement of the denominator to non-zero numbers. It is important to choose a convenient definition of the specification for the quotient - GCD can be used instead of the product, but then the proofs will have to reason about its properties, which is potentially less automatable. To extract the numerator and denominator, we must first define the <code>reduce</code> function, which computes the normal form of the fraction via the GCD function mentioned above. The authors note that QH requires the PLE extension (an algorithm for proof search from a set of equations in context) to be enabled by default in order to work correctly.</p>
+<p>The core of QH is λQ, a lambda calculus with patterns (first-order terms constructed from constructors and variables) - an extension of λL, the core language of liquid types. Quotients and guard predicates (statements corresponding to true propositions within if-then branches) are added to contexts. A quotient is a set of quantified variables and a triple of a refinement predicate, a pattern (left side of equality) and a general term (right side). Quotients require substitution, they can also be applied simultaneously but they must be independent. For correctness it is necessary to compute the most general unifier (MGU) for patterns. It is also worth noting that the system does not support the extension of quotient types to GADTs (so-called quotient inductive families). Finally, it is shown that the congruence of functions (<code>a = b -&gt; f a = f b</code>) holds for quotiented equalities.</p>
+<p>Also, for user convenience, λQ introduces a subtyping order on quotient types, which allows direct use of “less” quotiented types in functions on “more” quotiented ones (e.g., contravariance).</p>
+<p>The system introduces two classes of equality - the propositional equality from refinement logic, and an extended judgemental equality within the type system, which is weaker. This second equality allows the construction of a set of equations from a system of quotients in the context, which are passed on to the SMT solver. The rules for manipulating the extended equality are introduced in such a way as to obtain terminating type checking and to preserve all the good properties expected of an equality. Potentially problematic, however, is the naive combinatorial exploration of n quotients in the context, i.e., going through n! variants; the authors claim that this number is quite small in practice.</p>
+<p>QH is built as an extension of LiquidHaskell; it makes changes to the parser (quotient expressions and auxiliary proofs of quotient equalities), the AST, the equality generation process, and the type checking for case-expressions. The pattern language used is a stripped-down version of Haskell patterns (no wildcards, irrefutable patterns, as-patterns). The type checking of quotient types includes a number of steps: checking for grammatical correctness, equality lifting (generating equations for the solver), checking for quotient condition satisfaction when eliminating quotiented data (it is important to have terms in a normal form at this stage, which implies the PLE-by-default requirement), and a decision procedure for subtyping quotient types. For speed, the computed subtyping relations are cached, and optimisations for trivial theorems are performed.</p>
+<p>The authors cite Cubical Agda (whose quotient types they were clearly inspired by), quotient axiomatisation in Lean, decidable quotients in Coq/Mathcomp, a number of implementations in Isabelle and an implementation in NuPRL as related work. The last two items are ideologically close since they involve associated automation, but the implementations in Isabelle have a lower-level automation, and NuPRL requires the adoption of the axiom of choice.</p>
+<p>Finally, the authors recall their achievements: integration with SMT-automated subtypes, implementation of QITs, implicit transformations between functions on types of different quotienting degree. In addition, they still have a number of examples to share: implementations of modular arithmetic, quotiented polar coordinate system, lambda calculus with an embedded eta-equality. Limitations include: lack of function extensionality, GADTs/QIFs, and unintuitive error messages. The authors leave work on these points, as well as automatic inference of quotient types, for the future.</p>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+    </body>
+</html>
