@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Covalue</title>
+        <link rel="stylesheet" href="../css/default.css" />
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../">Covalue</a>
+            </div>
+            <nav>
+                <a href="../">Home</a>
+                <a href="../about.html">About</a>
+                <a href="../projects.html">Projects</a>
+                <a href="../talks.html">Talks</a>
+                <a href="../archive.html">Archive</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>Structural abstract interpretation</h1>
+            <article>
+    <section class="header">
+        Posted on July 23, 2024
+        
+    </section>
+    <section>
+        <p><a href="https://inria.hal.science/inria-00329572v2/">Bertot, [2008] “Structural abstract interpretation, A formal study using Coq”</a></p>
+<p>Agda port: https://github.com/clayrat/guarded-absint/tree/main/src/Bertot</p>
+<p>This paper discusses the coding within type theory of the approach to static program analysis known as <a href="https://en.wikipedia.org/wiki/Abstract_interpretation">abstract interpretation</a> (AI). A simple imperative language with integer values (can be restricted to naturals) with addition and boolean comparison, mutable variables, sequential composition and while-loops is taken for analysis. The correctness of the obtained abstract interpreter is proved with respect to the axiomatic (Hoare) semantics of the language, while its termination guarantee is obtained by construction.</p>
+<p>The idea of abstract interpretation is to compute approximations for some aspects of program behaviour - usually the analysis is done on the <a href="https://en.wikipedia.org/wiki/Control-flow_graph">control flow graph</a> of the program, but in this paper the syntax tree is analysed directly. Such an approximation can usually be obtained much faster than executing the program itself, and compiler optimisations and correctness claims can be made on its basis. A standard example of approximate analysis is coarsening the exact values of numerical variables to a parity bit or an interval of values. Classically, this leads to overapproximation, i.e. we want to guarantee the absence of false negatives at the expense of possible false positives (the default static analysis tradeoff). Formally, the relations between exact (concrete) and approximate (abstract) sets of values are described in AI theory via <a href="https://en.wikipedia.org/wiki/Galois_connection">Galois connections</a> (a pair of abstraction function α and concretisation function γ required to transport order relations); the paper uses an ad-hoc form of this construction. It is also required that the domain of abstract values has the structures of a semigroup (since numerical values are modelled) and a bounded (semi-)lattice.</p>
+<p>A precondition calculus is used to specify the semantics of the analyzed language, consisting of (1) quantifier-free logical formulas (preconditions/assertions) and programs annotated with them, (2) a function for computing the weakest precondition (logical formula) (3) a function for generating verification conditions (a set of implications such that, being valid, they guarantee that any program execution starting from a precondition-satisfying state will also satisfy all subsequent formulas). Explicit invariants are also added for while-loops. It should be noted that the full-fledged axiomatic semantics with pre- and postconditions is not introduced in the article itself, but it was done in the author’s <a href="https://inria.hal.science/inria-00160309">previous article</a>, from which I took the corresponding part with proofs of correctness of axiomatic semantics with respect to operational semantics and correctness of the condition generator. The key property of the condition generator for the correctness of the abstract interpreter is monotonicity, i.e. the validity of conditions constructed from a formula entails the validity of conditions constructed from its weakening. The task of an abstract interpreter is to derive an annotated program and a final abstract state simultaneously from an initial program and an abstract initial state.</p>
+<p>The paper demonstrates the construction of two variants of an abstract interpreter, where the second, more advanced one, makes an attempt to detect non-termination and dead code branches. The basic infrastructure for both of them is a lookup table for abstract variable states (pairs of variable name and abstract value; missing variables have the default value of the top element of the semilattice) and a set of functions for mapping these states into logical formulas, which are supposed to have a number of properties (for example, requirements of parametricity of the mapping and translation of the top element into trivial truth). For verification, the interpreter also needs a function for constructing a predicate within the metatheory (type theory) from its signature.</p>
+<p>The first interpreter simply uses these functions directly to recursively annotate the program, without trying to derive loop invariants (substituting trivially true formulas for them). Its correctness boils down to three properties: (1) the weakest precondition obtained from the computed final state is indeed weaker than the precondition obtained from the initial state, (2) all verification conditions obtained from the computed annotated program and the final state are valid, and (3) the computed annotated program is identical to the initial program after erasing the annotations. An example of the operation of this interpreter is illustrated on a parity bit domain with a freely added top element (encoding the absence of information).</p>
+<p>The second interpreter takes loop handling more seriously, using the information that a loop test is always true inside its body and false on exit. Non-termination is encoded by wrapping the final state in an optional type in the interpreter output. Two new functions are added to the parameters that compute refinements of the abstract state depending on the successfully and unsuccessfully passed loop test, respectively; it is these functions that take on the main complexity of the problem, in particular they attempt to infer non-termination, and this same information allows dead code to be marked up with trivially false annotations. The scheme of the process of inferring the loop invariant (in the general case this problem is undecidable!) looks like this: (1) several abstract runs of the loop body (the number is controlled by a heuristic) with increasing expansion of the set of variable values - if the process has stabilised, the invariant is found; (2) if the invariant is not found, run process 1 again with an overapproximation for some variable values - this allows to speed up the convergence process (the number of these repetitions is also controlled by a separate heuristic); (3) if the invariant is still not found, choose a guaranteed invariant (the first interpreter immediately does this using trivial truth); (4) narrow down the overapproximised invariants by running the interpreter again (the presence of this step leads to the definition of the interpreter via nested recursion).</p>
+<p>The implementation of these steps requires the introduction of a number of auxiliary function parameters, for example, to compare the amount of information in two abstract values. To prove the correctness of the second interpreter (which consists of the same three parts as in the first case) we also need 14 new conditions describing all these new functions and their interactions. Both implementations of the interpreters and their proofs are packaged in modules, parameterising them by the abstract domain. The first interpreter has been previously instantiated by the parity domain, while for the second an encoding of the domain of numerical intervals with potentially infinite boundaries is described, where the role of the upper element is played by the interval (-∞,+∞) and the overapproximation consists in replacing one of the boundaries by -/+∞.</p>
+<p>In conclusion, the author says that the paper should not be considered as a complete introduction to AI theory, and that the implemented interpreters are models, as they leave much to be desired in terms of performance, e.g., when computing annotations, the work already done before when searching for the loop invariant is repeated. In addition, static analyses can be more efficient if one considers relationships between several variables instead of individual variables.</p>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+    </body>
+</html>
