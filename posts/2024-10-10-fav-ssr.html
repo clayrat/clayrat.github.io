@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Covalue</title>
+        <link rel="stylesheet" href="../css/default.css" />
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../">Covalue</a>
+            </div>
+            <nav>
+                <a href="../">Home</a>
+                <a href="../papers.html">Papers</a>
+                <a href="../projects.html">Projects</a>
+                <a href="../talks.html">Talks</a>
+                <a href="../archive.html">Archive</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>FDSA in SSReflect</h1>
+            <article>
+    <section class="header">
+        Posted on October 10, 2024
+        
+    </section>
+    <section>
+        <p>A couple of weeks ago, I moved a project that I have been working on sporadically since 2021 under the wing of the <a href="https://coq-community.org/">Coq community</a>: <a href="https://github.com/coq-community/fav-ssr">FDSA in SSReflect</a>.</p>
+<p>The idea is simple: rewrite the code from the publicly available book <a href="https://functional-algorithms-verified.org/">Nipkow et al, “Functional Data Structures and Algorithms”</a> (at the beginning of the work, the book was called “Functional Algorithms, Verified”) from Isabelle/HOL into a fully type-theoretical language. For porting, I chose Coq + the <a href="https://math-comp.github.io/">Mathcomp/SSReflect framework</a> + the <a href="https://mattam82.github.io/Coq-Equations/">Equations plugin</a> for compact pattern matching and termination proofs.</p>
+<p>Isabelle/HOL uses classical logic for reasoning, but for working with the correctness of computational data structures, the difference from constructive logic is small. This is because it is almost always assumed that the elements of these structures are at least discrete (i.e., equipped with a decidable equality check, which corresponds to the “local” excluded middle). The main difference is probably in only one place: instead of using equalities on multisets from Isabelle, I use lists and the permutation relation (<code>perm_eq</code>) on them. Additionally, functions in Isabelle do not have to be total, which requires slightly changing the definitions — expanding them to cover the entire domain of definition and providing proofs of termination in all cases (not just in selected ones, as in the book).</p>
+<p>The book is structured as follows:</p>
+<ol start="0" type="1">
+<li>An introductory chapter with basic concepts.</li>
+<li>A section devoted to sorting and selection algorithms: mergesort/quicksort/<a href="https://en.wikipedia.org/wiki/Quickselect">quickselect</a>. In my opinion, the chapter on the selection algorithm makes a noticeable leap in complexity: for quickselect, the proofs of termination (due to the use of nested recursion) and complexity (a simplified version of the <a href="https://en.wikipedia.org/wiki/Akra%E2%80%93Bazzi_method">Akra-Bazzi theorem</a>) are an order of magnitude (or even two) more complicated than those for sorting.</li>
+<li>A large section on tree algorithms - here you will find popular <a href="https://en.wikipedia.org/wiki/Red-black_tree">red-black trees</a>/<a href="https://en.wikipedia.org/wiki/AVL_tree">AVL trees</a>, the lesser-known <a href="https://www.cambridge.org/core/services/aop-cambridge-core/content/view/59CF6B17F75EC216EBCA8A08E8780DFF/S0956796897002876a.pdf/three-algorithms-on-braun-trees.pdf">Braun trees</a>, and specialized <a href="https://en.wikipedia.org/wiki/Quadtree">quadtrees</a>.</li>
+<li>An ideological continuation of the previous section covering several ways to implement <a href="https://en.wikipedia.org/wiki/Priority_queue">priority queues</a>.</li>
+<li>A section on advanced algorithmic methods, including dynamic programming, <a href="https://en.wikipedia.org/wiki/Amortized_analysis">amortized analysis</a>, and <a href="https://en.wikipedia.org/wiki/Splay_tree">splay trees</a>. I haven’t reached this section yet; I stopped at adapting search trees from previous chapters into a search table for caching results in dynamic programming.</li>
+<li>A miscellaneous section, currently containing classical graph search algorithms, the <a href="https://en.wikipedia.org/wiki/Knuth%E2%80%93Morris%E2%80%93Pratt_algorithm">Knuth-Morris-Pratt string algorithm</a>, the <a href="https://en.wikipedia.org/wiki/Huffman_coding">Huffman compression algorithm</a>, and the <a href="https://en.wikipedia.org/wiki/Alpha%E2%80%93beta_pruning">αβ-pruning search algorithm</a>. So far, I have only implemented the Huffman algorithm.</li>
+</ol>
+<p>Overall, the book explains classical immutable algorithms quite well (although it is sometimes too concise, especially in section 4). It serves as a kind of proof-engineering version of the well-known work, <a href="https://www.amazon.com/Purely-Functional-Structures-Chris-Okasaki/dp/0521631246">Okasaki, [1998] “Purely Functional Data Structures”</a>. The book contains many exercises, most of which I have solved, but in the public repository I replaced the corresponding sections with skeletons of definitions and theorems to avoid spoiling the solutions for potential students.</p>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+    </body>
+</html>
